@@ -29,8 +29,8 @@ let canvas, ctx, w, h;
 // default game options
 const defaultGameOptions = {
     snowGoodKindChance: 95,
-    monstersMinLoosingCount: 2,
-    monstersMaxLoosingCount: 3,
+    monstersMinLoosingCount: 1,
+    monstersMaxLoosingCount: 2,
 }
 
 // game data
@@ -40,10 +40,38 @@ const game = {
     loosedObjects: [],
     snowballs: [],
 
+    // game images
+    heartImage: "images/heart.png",
+    giftImage: "images/gift.png",
+
     // timers
     objectsLoosingTimer: undefined,
     phaseTimer: undefined,
     phasePrepearingTime: 3000,
+
+    // game bars
+    bars: {
+        phaseBar: "phase-bar",
+        levelBar: "level-bar",
+        giftBar: "gift-bar",
+        lifeBar: "life-bar",
+        middleScreenText: "middle-screen-text",
+        snowflakesCount: "snowflakes-count"
+    },
+
+    // objects kinds
+    kinds: {
+        good: "good",
+        bad: "bad"
+    },
+
+    // game statuses
+    statuses: {
+        prepearing: "prepearing",
+        loosed: "loosed",
+        playing: "playing",
+        paused: "paused"
+    },
 
     // other
     loopStatus: true,
@@ -56,6 +84,8 @@ const game = {
 // snow data
 const snow = {
     type: "snow",
+    color: "white",
+    icicleImage: "images/icicle.png",
     
     // snow properties
     minLoosingCount: 7,
@@ -63,7 +93,7 @@ const snow = {
     minRadius: 8,
     maxRadius: 15,
 
-    goodKindChance: 95,
+    goodKindChance: defaultGameOptions.snowGoodKindChance,
     requiredCount: 20,
     loosingInterval: 500,
     phaseTime: 30000,
@@ -75,12 +105,17 @@ const snow = {
 // monsters data
 const monsters = {
     type: "monsters",
+    images: {
+        redMonster: "images/redMonster.png",
+        blueMonster: "images/blueMonster.png",
+        purpleMonster: "images/purpleMonster.png"
+    },
 
     // properties
-    minLoosingCount: 1,
-    maxLoosingCount: 2,
-    minRadius: 15,
-    maxRadius: 15,
+    minLoosingCount: defaultGameOptions.monstersMinLoosingCount,
+    maxLoosingCount: defaultGameOptions.monstersMaxLoosingCount,
+    minRadius: 40,
+    maxRadius: 40,
 
     loosingInterval: 4000,
     requiredCount: 6,
@@ -90,11 +125,12 @@ const monsters = {
     nextPhaseObjects: undefined
 }
 
-
+// snowball data
 const snowball = {
     type: "snowball",
     radius: 15,
-    normalSpeed: 10
+    normalSpeed: 10,
+    color: "rgb(122, 206, 245)"
 }
 
 // player data
@@ -155,7 +191,7 @@ window.onload = function init() {
         }
         // pause event
         else if(event.key === "Escape") {
-            if(game.status !== "prepearing" && game.status !== "loosed") {
+            if(game.status !== game.statuses.prepearing && game.status !== game.statuses.loosed) {
                 changePhaseExecutingStatus();
                 putText("Pause");
                 changeTextVisibility();
@@ -165,7 +201,7 @@ window.onload = function init() {
 
     // mouse button down event
     document.addEventListener("mousedown", event => {
-        if(event.button === 0 && game.status !== "prepearing" && game.status !== "loosed" && game.status !== "paused" && player.collectedSnowCount > 0) {
+        if(event.button === 0 && game.status === game.statuses.playing && player.collectedSnowCount > 0) {
             // changing collected snow
             player.collectedSnowCount--;
             changeCollectedSnowCount();
@@ -202,7 +238,7 @@ function mainLoop() {
         moveAllSnowballs();
 
         // ask for a new animation frame
-        if(game.status !== "loosed") {
+        if(game.status !== game.statuses.loosed) {
             game.animationFrame = requestAnimationFrame(mainLoop);
         }
     }

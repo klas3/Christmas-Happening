@@ -26,11 +26,11 @@ function refillObjects(count, type, objects) {
     let kind = getKind(type);
     result.push({
       x: getRandomIntInclusive((canvasData.x + 15), (canvasData.x + canvasData.width - 15)),
-      color: "white",
+      color: snow.color,
       y: 12,
       radius: objects.minRadius + objects.maxRadius * Math.random(),
       speedX: 0.4,
-      speedY: (type === "monsters") ? 1.5 : 3,
+      speedY: (type === monsters.type) ? 1.5 : 3,
       kind: kind,
       type: type,
       image: getImage(type, kind) 
@@ -42,39 +42,43 @@ function refillObjects(count, type, objects) {
 
 // getting images of different game objects
 function getImage(type, kind) {
-  if(type === "snow") {
-    if(kind === "good") {
+  if(type === snow.type) {
+    if(kind === game.kinds.good) {
       return "";
     }
-    return "images/icicle.png";
+    return snow.icicleImage;
   }
   else {
-    const monsters = ["images/redMonster.png", "images/blueMonster.png", "images/purpleMonster.png"];
     let index = getRandomIntInclusive(0, 2);
 
-    return monsters[index];
+    if(index === 0) {
+      return monsters.images.redMonster;
+    }
+    else if(index === 1) {
+      return monsters.images.blueMonster;
+    }
+    else {
+      return monsters.images.purpleMonster;
+    }
   }
 }
 
 // getting kind of objects
 function getKind(type) {
   // monsters are always bad :)
-  if(type === "monsters") {
-    return "bad";
+  if(type === monsters.type) {
+    return game.kinds.bad;
   }
 
   // getting random kind of snow
-  const kinds = ["good", "bad"];
   let index = getRandomIntInclusive(1, 100);
 
   if(index <= snow.goodKindChance) {
-    index = 0;
+    return game.kinds.good;
   }
   else {
-    index = 1;
+    return game.kinds.bad;
   }
-
-  return kinds[index];
 }
 
 // loosing object
@@ -107,7 +111,7 @@ function moveAllObjects(objects) {
   objects.forEach(function(object, index) {
     object.x += object.speedX;
     object.y += object.speedY;
-    if(object.type === "monsters") {
+    if(object.type === monsters.type) {
       testCollisionWithWalls(object, index, objects); 
     }
     testCollisionWithPlayer(object, index, objects);
@@ -148,9 +152,9 @@ function testCollisionMonsterWithSnowball(snowball, snowballIndex) {
 // collision with player testing
 function testCollisionWithPlayer(object, index, objectsCollection) {
   if(circRectsOverlap(player.x, player.y, player.width, player.height, object.x, object.y, object.radius)) {
-    if(object.kind === "bad") {
+    if(object.kind === game.kinds.bad) {
       player.health--;
-      changePlayerStats(player.health, "life-bar")
+      changePlayerStats(player.health, game.bars.lifeBar)
 
       if(player.health === 0) {
         looseGame();
@@ -171,16 +175,16 @@ function testCollisionWithWalls(object, index, objects) {
   if((object.x + object.radius) > w) {
     objects.splice(index, 1);
   } 
-  else if((object.x -object.radius) < 0 && object.type === "snowball") {
+  else if((object.x -object.radius) < 0 && object.type === snowball.type) {
     objects.splice(index, 1);
   }
  
   // collisions with vertical walls testing
   if((object.y + object.radius) > h) {
     // chnaging some counters if object is a monster
-    if(object.type === "monsters") {
+    if(object.type === monsters.type) {
       player.gifts--;
-      changePlayerStats(player.gifts, "gift-bar")
+      changePlayerStats(player.gifts, game.bars.giftBar)
   
       if(player.gifts === 0) {
         looseGame();
@@ -189,7 +193,7 @@ function testCollisionWithWalls(object, index, objects) {
 
     objects.splice(index, 1);
   } 
-  else if((object.y -object.radius) < 0 && object.type === "snowball") {
+  else if((object.y -object.radius) < 0 && object.type === snowball.type) {
     objects.splice(index, 1);
   }  
 }
@@ -244,12 +248,12 @@ function changePhaseExecutingStatus() {
   game.loopStatus = !game.loopStatus;
 
   if(game.loopStatus) {
-      game.status = "playing";
+      game.status = game.statuses.playing;
       game.phaseTimer.resume();
       game.animationFrame = requestAnimationFrame(mainLoop);    // also resume a mainLoop
   }
   else {
-      game.status = "paused";
+      game.status = game.statuses.paused;
       game.phaseTimer.pause();
   }
 }
@@ -262,21 +266,21 @@ function looseAndRefill(objects) {
 
 // starting new phase
 function startPhase() {
-  if(game.phase !== 2 || game.status === "loosed") {
+  if(game.phase !== 2 || game.status === game.statuses.loosed) {
     changeTextVisibility();
   }
   
-  game.status = "playing";
+  game.status = game.statuses.playing;
   game.phase++;
 }
 
 // ending phase
 function endPhase() {
-  game.status = "prepearing";
+  game.status = game.statuses.prepearing;
 
   if(game.phase === 3) {
     game.level++;
-    changeGameBar("level-bar");
+    changeGameBar(game.bars.levelBar);
     putText("Level " + game.level);
     game.phase = 1;
     changeTextVisibility();
@@ -290,32 +294,32 @@ function endPhase() {
     snow.goodKindChance -= 3;
   }
 
-  changeGameBar("phase-bar");
+  changeGameBar(game.bars.phaseBar);
 }
 
 // changing game bars counters (levels and phases)
 function changeGameBar(id) {
-  document.getElementById(id).innerHTML = (id === "level-bar") ? "Level " + game.level : "Phase " + game.phase; 
+  document.getElementById(id).innerHTML = (id === game.bars.levelBar) ? "Level " + game.level : "Phase " + game.phase; 
 }
 
 // changing middle-screen text visibility
 function changeTextVisibility() {
-  if(document.getElementById("middle-screen-text").style.visibility === "hidden") {
-      document.getElementById("middle-screen-text").style.visibility = "visible";
+  if(document.getElementById(game.bars.middleScreenText).style.visibility === "hidden") {
+      document.getElementById(game.bars.middleScreenText).style.visibility = "visible";
   }
   else {
-      document.getElementById("middle-screen-text").style.visibility = "hidden";
+      document.getElementById(game.bars.middleScreenText).style.visibility = "hidden";
   }
 }
 
 // putting text into the middle-screen box
 function putText(text) {
-  document.getElementById("middle-screen-text").innerHTML = text;
+  document.getElementById(game.bars.middleScreenText).innerHTML = text;
 }
 
 // updating collected snow displaying
 function changeCollectedSnowCount() {
-  document.getElementById("snowflakes-count").innerHTML = player.collectedSnowCount;
+  document.getElementById(game.bars.snowflakesCount).innerHTML = player.collectedSnowCount;
 }
 
 // changing different player stats
@@ -323,13 +327,13 @@ function changePlayerStats(count, id) {
   let newHTML = "";
   let img = "";
 
-  if(id === "life-bar") {
+  if(id === game.bars.lifeBar) {
     // changing hearts count
-    img = "images/heart.png";
+    img = game.heartImage;
   }
   else {
     // changing gifts count
-    img = "images/gift.png"
+    img = game.giftImage;
   }
 
   for(let i = 0; i < count; i++) {
@@ -356,7 +360,7 @@ function looseGame() {
   player.collectedSnowCount = 0;
 
   // clearing and updating all game's parameters
-  game.status = "loosed";
+  game.status = game.statuses.loosed;
   game.remainsObjects = [];
   game.loosedObjects = [];
   game.snowballs = [];
@@ -371,10 +375,10 @@ function looseGame() {
   // seting timeout for the next phase executing
   setTimeout(function() {
     // updating bars and counters
-    changePlayerStats(player.health, "life-bar");
-    changePlayerStats(player.gifts, "gift-bar");
-    changeGameBar("level-bar");
-    changeGameBar("phase-bar");
+    changePlayerStats(player.health, game.bars.lifeBar);
+    changePlayerStats(player.gifts, game.bars.giftBar);
+    changeGameBar(game.bars.levelBar);
+    changeGameBar(game.bars.phaseBar);
     changeCollectedSnowCount();
 
     // executing new phase
@@ -394,14 +398,14 @@ function createSnowball(mouseX, mouseY) {
   return {
     mouseX: mouseX,
     mouseY: mouseY,
-    type: "snowball",
+    type: snowball.type,
 
     defaultX: player.x,
     defaultY: player.y,
 
     x: player.x,
     y: player.y,
-    color: "blue",
+    color: snowball.color,
     radius: snowball.radius,
 
     speedX: speeds[0],
