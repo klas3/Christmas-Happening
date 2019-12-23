@@ -1,0 +1,124 @@
+body {
+  background-image: url("https://cdn.discordapp.com/attachments/615120043646124057/657526916579852292/dna-arts-background1-completed.png");
+  background-size: 170% auto;
+  overflow: hidden;
+}
+
+#button {
+  font-size: 50px;
+  background-color: rgb(236, 245, 247);
+  padding: 15px 120px;
+  cursor: pointer;
+  position: absolute;
+  left: 41%;
+  top: 53%;
+  border-radius: 10px;
+  color: rgb(88, 201, 230); 
+  border: 2px solid rgb(156, 198, 209);
+  font-family: christmasFont;
+}
+
+#button:hover {
+  background-color: rgb(156, 198, 209);
+  color: white;
+}
+
+canvas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+img { 
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#game-name {
+  position: absolute;
+  left: 25.5%;
+  top: 36%; 
+  font-size: 120px;
+  color: rgb(21, 53, 87);
+  font-family: christmasFont;
+}
+
+#middle-screen-text {
+  font-size: 100px;
+  position: absolute;
+  top: 48.5%;
+  left: 48.5%;
+  transform: translate(-50%, -50%);
+  color: rgb(21, 53, 87);
+  visibility: hidden;
+  font-family: christmasFont;
+}
+
+#level-bar {
+  font-size: 60px;
+  position: absolute;
+  top: 1%;
+  left: 1%;
+  color:  rgb(21, 53, 87);
+  font-family: christmasFont;
+}
+
+#phase-bar {
+  font-size: 60px;
+  position: absolute;
+  top: 8%;
+  left: 1%;
+  color:  rgb(21, 53, 87);
+  font-family: christmasFont;
+}
+
+#life-bar {
+  top: 2%;
+  left: 87%;
+  position: absolute;
+}
+
+#gift-bar {
+  top: 11%;
+  left: 87%;
+  position: absolute;
+}
+
+#snowflakes {
+  top: 24%;
+  left: 87%;
+  position: absolute;
+}
+
+#snowflakes-count {
+  top: 22%;
+  left: 91%;
+  position: absolute;
+  font-size: 70px;
+  font-family: christmasFont;
+}
+
+.gifts {
+  position: absolute;
+  top: 90%;
+  z-index: -1;
+}
+
+#gift1 {
+  left: 1%;
+}
+
+#gift2 {
+  left: 30%;
+}
+
+#gift3 {
+  left: 90%;
+}
+
+@font-face {
+  font-family: christmasFont;
+  src: url("fonts/BeyondWonderland.ttf");
+}
